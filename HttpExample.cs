@@ -17,7 +17,6 @@ namespace FAHTTPTrigger
         [FunctionName("HttpExample")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            //[Queue("outqueue"), StorageAccount("AzureWebJobsStorage")] ICollector<string> msg,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
@@ -32,12 +31,6 @@ namespace FAHTTPTrigger
             string responseMessage = string.IsNullOrEmpty(name)
                 ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
                 : $"Hello, {name}. This HTTP triggered function executed successfully.";
-
-            //if (!string.IsNullOrEmpty(name))
-            //{
-            //    // Add a message to the output collection.
-            //    msg.Add(string.Format("Name passed to the function: {0}", name));
-            //}
 
             return new OkObjectResult(responseMessage);
         }
