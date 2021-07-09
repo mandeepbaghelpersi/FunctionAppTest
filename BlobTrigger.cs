@@ -6,17 +6,19 @@ using Microsoft.Extensions.Logging;
 
 namespace FAHTTPTrigger
 {
-    public static class BlobExample
+    public static class BlobTrigger
     {
-        [FunctionName("BlobExample")]
+        [FunctionName("BlobTrigger")]
         public static void Run(
-            [BlobTrigger("input-blob/{name}", Connection = "AzureWebJobsStorage")]Stream myBlob,
+            [BlobTrigger("input-blob/{name}", Connection = "AzureWebJobsStorage")]Stream myBlob, string BlobTrigger,
             [Blob("output-blob/output-{name}", FileAccess.Write, Connection = "AzureWebJobsStorage")] Stream outBlob,
             string name,  
             ILogger log)
 
         {
-            log.LogInformation($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {myBlob.Length} Bytes");
+            StreamReader reader = new StreamReader(myBlob);
+
+            log.LogInformation($"C# Blob trigger function Processed blob\n Name:{name} \n Size: {myBlob.Length} Bytes\n Content: {reader.ReadToEnd()}\n Path:{BlobTrigger}");
             var len = myBlob.Length;
             myBlob.CopyTo(outBlob);
         }

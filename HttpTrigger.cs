@@ -11,10 +11,10 @@ using Newtonsoft.Json;
 namespace FAHTTPTrigger
 {
     //HTTP Triggered function
-    public static class HttpExample
+    public static class HttpTrigger
     {
         
-        [FunctionName("HttpExample")]
+        [FunctionName("HttpTrigger")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
             ILogger log)

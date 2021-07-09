@@ -7,18 +7,19 @@ using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System.Text;
 
 namespace FunctionAppTest
 {
-    public static class HttpWithQueue
+    public static class HttpTrigger_BlobOutput
     {
-        [FunctionName("HttpWithQueue")]
+        [FunctionName("HttpTrigger_BlobOutput")]
         public static async Task<IActionResult> Run(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
-            [Queue("output-queue"), StorageAccount("AzureWebJobsStorage")] ICollector<string> msg,
+            [Blob("output-blob/httpRequests.txt", FileAccess.Write, Connection = "AzureWebJobsStorage")]Stream outBlob,
             ILogger log)
         {
-            log.LogInformation("C# HTTP trigger with blob binding function processed a request.");
+            log.LogInformation("C# HTTP trigger function processed a request.");
 
             string name = req.Query["name"];
 
@@ -26,21 +27,22 @@ namespace FunctionAppTest
             dynamic data = JsonConvert.DeserializeObject(requestBody);
             name = name ?? data?.name;
 
-            string responseMessage, queueMessage;
+            string responseMessage;
 
+            //StreamReader reader = new StreamReader(outBlob);
+            //string content = reader.ReadToEnd();
+            
             if (string.IsNullOrEmpty(name))
             {
                 responseMessage = "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.";
-                queueMessage = "No name parameter was passed while making the request.";
+                outBlob.Write(Encoding.ASCII.GetBytes($"No name entered"));
             }
             else
             {
-                responseMessage = $"Hello, {name}. This HTTP triggered function executed successfully and new string is added to the output queue.";
-                queueMessage = $"New Request for {name} added in the queue";
-
+                responseMessage = $"Hello, {name}. This HTTP triggered function executed successfully and new string is added to the output blob.";
+                outBlob.Write(Encoding.ASCII.GetBytes($"Name: {name}"));
             }
 
-            msg.Add(queueMessage);
             return new OkObjectResult(responseMessage);
         }
     }
